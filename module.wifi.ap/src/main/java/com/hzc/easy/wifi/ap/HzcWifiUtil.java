@@ -14,23 +14,23 @@ import java.util.List;
 /**
  * wifi 热点工具
  */
-public class WifiUtil {
+public class HzcWifiUtil {
 
     private void WifiUtil() {
     }
 
-    public static final String TAG = "WifiUtil";
+    public static final String TAG = "HzcWifiUtil";
     private static final String DEFAULT_WIFI_PWD = "12345678";
-    private static WifiUtil wifiUtil;
+    private static HzcWifiUtil hzcWifiUtil;
     private Context mContext = null;
     private WifiManager mWifiManager = null;
     public static int WIFI_AP_STATE_DISABLED = 11;
 
-    public static WifiUtil getInstance() {
-        if (wifiUtil == null) {
-            wifiUtil = new WifiUtil();
+    public static HzcWifiUtil getInstance() {
+        if (hzcWifiUtil == null) {
+            hzcWifiUtil = new HzcWifiUtil();
         }
-        return wifiUtil;
+        return hzcWifiUtil;
     }
 
 
@@ -40,17 +40,17 @@ public class WifiUtil {
      * @param context
      */
     public void init(Context context) {
-        wifiUtil.mContext = context;
-        wifiUtil.mWifiManager = (WifiManager) wifiUtil.mContext.getSystemService(Context.WIFI_SERVICE);
+        hzcWifiUtil.mContext = context;
+        hzcWifiUtil.mWifiManager = (WifiManager) hzcWifiUtil.mContext.getSystemService(Context.WIFI_SERVICE);
     }
 
     /**
      * 卸载内存
      */
     public void uninit() {
-        wifiUtil.mContext = null;
-        wifiUtil.mWifiManager = null;
-        wifiUtil = null;
+        hzcWifiUtil.mContext = null;
+        hzcWifiUtil.mWifiManager = null;
+        hzcWifiUtil = null;
     }
 
     /**
@@ -136,7 +136,7 @@ public class WifiUtil {
      * @return
      */
     public boolean createWifiAp(String str, String password) {
-        return createWifiAp(str, password, WifiAPService.WifiSecurityType.WIFICIPHER_WPA2);
+        return createWifiAp(str, password, HzcWifiAPService.WifiSecurityType.WIFICIPHER_WPA2);
     }
 
     /**
@@ -147,7 +147,7 @@ public class WifiUtil {
      * @param Type
      * @return
      */
-    public boolean createWifiAp(String str, String password, WifiAPService.WifiSecurityType Type) {
+    public boolean createWifiAp(String str, String password, HzcWifiAPService.WifiSecurityType Type) {
         String ssid = str;
         //配置热点信息。
         WifiConfiguration wcfg = new WifiConfiguration();
@@ -159,12 +159,12 @@ public class WifiUtil {
         wcfg.allowedPairwiseCiphers.clear();
         wcfg.allowedProtocols.clear();
 
-        if (Type == WifiAPService.WifiSecurityType.WIFICIPHER_NOPASS) {
+        if (Type == HzcWifiAPService.WifiSecurityType.WIFICIPHER_NOPASS) {
             wcfg.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN, true);
             wcfg.wepKeys[0] = "";
             wcfg.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
             wcfg.wepTxKeyIndex = 0;
-        } else if (Type == WifiAPService.WifiSecurityType.WIFICIPHER_WPA) {
+        } else if (Type == HzcWifiAPService.WifiSecurityType.WIFICIPHER_WPA) {
             //密码至少8位，否则使用默认密码
             if (null != password && password.length() >= 8) {
                 wcfg.preSharedKey = password;
@@ -180,7 +180,7 @@ public class WifiUtil {
             wcfg.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
             wcfg.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
             wcfg.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-        } else if (Type == WifiAPService.WifiSecurityType.WIFICIPHER_WPA2) {
+        } else if (Type == HzcWifiAPService.WifiSecurityType.WIFICIPHER_WPA2) {
             Log.d(TAG, "wifi ap---- wpa2");
             //密码至少8位，否则使用默认密码
             if (null != password && password.length() >= 8) {
@@ -330,18 +330,18 @@ public class WifiUtil {
             configuration = (WifiConfiguration) method.invoke(mWifiManager);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-            return WifiAPService.WifiSecurityType.WIFICIPHER_INVALID.ordinal();
+            return HzcWifiAPService.WifiSecurityType.WIFICIPHER_INVALID.ordinal();
         }
 
         Log.i(TAG, "getSecurity security=" + configuration.allowedKeyManagement);
         if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.NONE)) {
-            return WifiAPService.WifiSecurityType.WIFICIPHER_NOPASS.ordinal();
+            return HzcWifiAPService.WifiSecurityType.WIFICIPHER_NOPASS.ordinal();
         } else if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) {
-            return WifiAPService.WifiSecurityType.WIFICIPHER_WPA.ordinal();
+            return HzcWifiAPService.WifiSecurityType.WIFICIPHER_WPA.ordinal();
         } else if (configuration.allowedKeyManagement.get(4)) { //4 means WPA2_PSK
-            return WifiAPService.WifiSecurityType.WIFICIPHER_WPA2.ordinal();
+            return HzcWifiAPService.WifiSecurityType.WIFICIPHER_WPA2.ordinal();
         }
-        return WifiAPService.WifiSecurityType.WIFICIPHER_INVALID.ordinal();
+        return HzcWifiAPService.WifiSecurityType.WIFICIPHER_INVALID.ordinal();
     }
 
     /**

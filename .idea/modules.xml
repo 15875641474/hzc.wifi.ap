@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/hzc.easy.wifi.ap.iml" filepath="$PROJECT_DIR$/hzc.easy.wifi.ap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hzc.wifi.ap.iml" filepath="$PROJECT_DIR$/hzc.wifi.ap.iml" />
       <module fileurl="file://$PROJECT_DIR$/module.wifi.ap/module.wifi.ap.iml" filepath="$PROJECT_DIR$/module.wifi.ap/module.wifi.ap.iml" />
     </modules>
   </component>

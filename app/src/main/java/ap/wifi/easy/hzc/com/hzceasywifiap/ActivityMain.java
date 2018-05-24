@@ -14,8 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hzc.easy.wifi.ap.WifiAPService;
-import com.hzc.easy.wifi.ap.WifiUtil;
+import com.hzc.easy.wifi.ap.HzcWifiAPService;
+import com.hzc.easy.wifi.ap.HzcWifiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ActivityMain extends AppCompatActivity {
     private android.widget.EditText etname;
     private android.widget.EditText etpwd;
     private Adapter adapter;
-    WifiAPService wifiAPService = null;
+    HzcWifiAPService hzcWifiAPService = null;
     private Button btnapclose;
 
     @Override
@@ -48,8 +48,8 @@ public class ActivityMain extends AppCompatActivity {
         recyclerview.setLayoutManager(new LinearLayoutManager(this));
         adapter = new Adapter();
         recyclerview.setAdapter(adapter);
-        WifiUtil.getInstance().init(this);
-        wifiAPService = new WifiAPService(this, new WifiAPService.OnWifiListance() {
+        HzcWifiUtil.getInstance().init(this);
+        hzcWifiAPService = new HzcWifiAPService(this, new HzcWifiAPService.OnWifiListance() {
             @Override
             public void onApEnable() {//启动热点
                 Toast.makeText(ActivityMain.this, "ap was create", Toast.LENGTH_SHORT).show();
@@ -71,37 +71,37 @@ public class ActivityMain extends AppCompatActivity {
             @Override
             public void onConnectioned(WifiInfo wifiInfo) {//链接wifi成功
                 if (connectionWifi != null && wifiInfo.getBSSID() == connectionWifi.BSSID) {
-                    wifiAPService.unRegisterListance();
+                    hzcWifiAPService.unRegisterListance();
                     Toast.makeText(ActivityMain.this, "connection success", Toast.LENGTH_SHORT).show();
                 }
             }
         });
         //注册wifi状态改变事件
-        wifiAPService.registerListance();
+        hzcWifiAPService.registerListance();
 
         //关闭热点
         btnapclose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WifiUtil.getInstance().closeWifiAp();
+                HzcWifiUtil.getInstance().closeWifiAp();
             }
         });
         //开启wlan
         btnopen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (WifiUtil.getInstance().isWifiEnabled()) {
+                if (HzcWifiUtil.getInstance().isWifiEnabled()) {
                     return;
                 }
-                WifiUtil.getInstance().setWifiEnable(true);
+                HzcWifiUtil.getInstance().setWifiEnable(true);
             }
         });
         //关闭wlan
         btnclose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (WifiUtil.getInstance().isWifiEnabled())
-                    WifiUtil.getInstance().setWifiEnable(false);
+                if (HzcWifiUtil.getInstance().isWifiEnabled())
+                    HzcWifiUtil.getInstance().setWifiEnable(false);
             }
         });
         //创建热点
@@ -116,14 +116,14 @@ public class ActivityMain extends AppCompatActivity {
                 if (TextUtils.isEmpty(pwd)) {
                     pwd = "12345678";
                 }
-                WifiUtil.getInstance().createWifiAp(name, pwd);
+                HzcWifiUtil.getInstance().createWifiAp(name, pwd);
             }
         });
         //搜索热点
         btnscan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                wifiAPService.startScan();
+                hzcWifiAPService.startScan();
             }
         });
     }
@@ -155,7 +155,7 @@ public class ActivityMain extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     connectionWifi = datalist.get(Integer.parseInt(v.getTag().toString()));
-                    WifiUtil.getInstance().doConnection(connectionWifi, "12345678");
+                    HzcWifiUtil.getInstance().doConnection(connectionWifi, "12345678");
                 }
             });
         }

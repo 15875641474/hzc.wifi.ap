@@ -13,8 +13,8 @@ import android.util.Log;
 
 import java.util.List;
 
-public class WifiAPService {
-    private static final String TAG = "WifiAPService";
+public class HzcWifiAPService {
+    private static final String TAG = "HzcWifiAPService";
     private OnWifiListance onWifiListance;
     private Context mContext;
     private WifiManager mWifiManager;
@@ -29,7 +29,7 @@ public class WifiAPService {
         WIFICIPHER_NOPASS, WIFICIPHER_WPA, WIFICIPHER_INVALID, WIFICIPHER_WPA2
     }
 
-    public WifiAPService(Context context, OnWifiListance onWifiListance) {
+    public HzcWifiAPService(Context context, OnWifiListance onWifiListance) {
         Log.i(TAG, "WifiAPUtils construct");
         mContext = context;
         this.onWifiListance = onWifiListance;
