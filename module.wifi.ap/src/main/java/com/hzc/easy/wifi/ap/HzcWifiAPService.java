@@ -15,7 +15,8 @@ import java.util.List;
 
 public class HzcWifiAPService {
     private static final String TAG = "HzcWifiAPService";
-    private OnWifiListance onWifiListance;
+    private OnScanResultListence onScanResultListence;
+    private OnWifiStatusListence onWifiStatusListence;
     private Context mContext;
     private WifiManager mWifiManager;
     //监听wifi热点的状态变化
@@ -29,10 +30,9 @@ public class HzcWifiAPService {
         WIFICIPHER_NOPASS, WIFICIPHER_WPA, WIFICIPHER_INVALID, WIFICIPHER_WPA2
     }
 
-    public HzcWifiAPService(Context context, OnWifiListance onWifiListance) {
+    public HzcWifiAPService(Context context) {
         Log.i(TAG, "WifiAPUtils construct");
         mContext = context;
-        this.onWifiListance = onWifiListance;
         mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     }
 
@@ -44,30 +44,31 @@ public class HzcWifiAPService {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "WifiAPUtils onReceive: " + intent.getAction());
-            if (onWifiListance == null) {
+            if (onWifiStatusListence == null) {
                 Log.i(TAG, "not init Interface OnWifiListance");
                 return;
             }
             if (WIFI_AP_STATE_CHANGED_ACTION.equals(intent.getAction())) {//当前的WiFi热点启用状态
                 int cstate = intent.getIntExtra(EXTRA_WIFI_AP_STATE, -1);
                 if (cstate == WIFI_AP_STATE_ENABLED) {
-                    onWifiListance.onApEnable();
+                    onWifiStatusListence.onApEnable();
                 }
                 if (cstate == WIFI_AP_STATE_DISABLED || cstate == WIFI_AP_STATE_FAILED) {
-                    onWifiListance.onApDisable();
+                    onWifiStatusListence.onApDisable();
                 }
             } else if (intent.getAction().equalsIgnoreCase(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {//获得热点搜索结果
                 List<ScanResult> result = mWifiManager.getScanResults();
                 if (result != null && result.size() > 0) {
                     Log.i(TAG, String.format("GET:%d wifi info", result.size()));
-                    onWifiListance.onScanResult(result);
+                    onScanResultListence.onFond(result);
                 }
             } else if (intent.getAction().equalsIgnoreCase(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {//已链接一个热点
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                Log.i(TAG, "NetworkInfo = " + info.getDetailedState());
                 if (info.getState() == NetworkInfo.State.CONNECTED) {
                     WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
                     if (wifiInfo.getBSSID() != null && !wifiInfo.getBSSID().isEmpty()) {
-                        onWifiListance.onConnectioned(wifiInfo);
+                        onWifiStatusListence.onConnectioned(wifiInfo);
                     }
                 }
             }
@@ -99,14 +100,23 @@ public class HzcWifiAPService {
     /**
      * wifi状态监听
      */
-    public interface OnWifiListance {
+    public interface OnWifiStatusListence {
         void onApEnable();
 
         void onApDisable();
 
-        void onScanResult(List<ScanResult> devicelist);
-
         void onConnectioned(WifiInfo wifiInfo);
     }
 
+    public interface OnScanResultListence {
+        void onFond(List<ScanResult> devicelist);
+    }
+
+    public void setOnWifiStatusListence(OnWifiStatusListence onWifiStatusListence) {
+        this.onWifiStatusListence = onWifiStatusListence;
+    }
+
+    public void setOnScanResultListence(OnScanResultListence onScanResultListence) {
+        this.onScanResultListence = onScanResultListence;
+    }
 }

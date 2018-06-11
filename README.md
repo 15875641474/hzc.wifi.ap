@@ -11,7 +11,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.15875641474:hzc.wifi.ap:1.0.1'
+    implementation 'com.github.15875641474:hzc.wifi.ap:1.0.2'
 }
 ```
 
