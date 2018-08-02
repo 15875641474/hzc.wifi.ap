@@ -24,12 +24,21 @@ HzcWifiAPService.set*
 HzcWifiAPService.is*
 
 ```
+
 * more .. see the sourse or desc
 ### Use
 ```
 HzcWifiAPService apService = new HzcWifiAPService(activity) 
 
 ``` 
+
+#### if you wang to listence some callback
+
+```
+apService.doRegisterListance();  
+apService.setOn*
+```
+
 ### Step 2
 call api to do some think
 ```
