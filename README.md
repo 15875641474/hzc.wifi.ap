@@ -11,39 +11,34 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.15875641474:hzc.wifi.ap:1.0.2'
+    implementation 'com.github.15875641474:hzc.wifi.ap:1.0.3'
 }
 ```
 
 ### API
-* HzcWifiAPService    
-Listance the WLAN status
-* HzcWifiUtil  
-operation the wifi like [connect/create/close]
-* more .. see the sourse or desc
-### Use
-### if you need listance wifi status ,do like that.
-```
-HzcWifiAPService service = new HzcWifiAPService()
-hzcWifiAPService.registerListance();
+* HzcWifiAPService
+```    
+Listance the WLAN status and operation AP/WLAN 
+HzcWifiAPService.do*  
+HzcWifiAPService.set*
+HzcWifiAPService.is*
 
 ```
-### if you need operation wifi / ap ,do like that
-### Step1 
-init the tool
+* more .. see the sourse or desc
+### Use
 ```
-HzcWifiUtil.getInstance().init(this);
-```
+HzcWifiAPService apService = new HzcWifiAPService(activity) 
+
+``` 
 ### Step 2
 call api to do some think
 ```
-HzcWifiUtil.getInstance().*
-*closeWifiAp
-*isWifiApEnabled
-*isWifiEnabled
-*createWifiAp
-*setWifiEnable
-*setWifiApEnabled
-*isConnection
-*doConnection
+part1. AP About  
+apService.doCreateWifiAp(name.pwd)
+apService.doCloseWifiAp()
+  
+part2. WLAN About  
+apService.setWifiEnable(boolean)
+
 ```
+

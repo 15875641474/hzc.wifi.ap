@@ -1,5 +1,6 @@
 package ap.wifi.easy.hzc.com.hzceasywifiap;
 
+import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.os.Bundle;
@@ -15,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hzc.easy.wifi.ap.HzcWifiAPService;
-import com.hzc.easy.wifi.ap.HzcWifiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,20 +48,29 @@ public class ActivityMain extends AppCompatActivity {
         recyclerview.setLayoutManager(new LinearLayoutManager(this));
         adapter = new Adapter();
         recyclerview.setAdapter(adapter);
-        HzcWifiUtil.getInstance().init(this);
-        hzcWifiAPService = new HzcWifiAPService(this, new HzcWifiAPService.OnWifiListance() {
+        hzcWifiAPService = new HzcWifiAPService(this);
+        hzcWifiAPService.setOnConnectionStatusListence(new HzcWifiAPService.OnConnectionStatusListence() {
             @Override
-            public void onApEnable() {//启动热点
-                Toast.makeText(ActivityMain.this, "ap was create", Toast.LENGTH_SHORT).show();
+            public void onConnectioned(WifiInfo wifiInfo, NetworkInfo networkInfo) {
+                if (connectionWifi != null && wifiInfo.getBSSID() == connectionWifi.BSSID) {
+                    hzcWifiAPService.doUnRegisterListance();
+                    Toast.makeText(ActivityMain.this, "connection success", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
-            public void onApDisable() {//关闭热点
-                Toast.makeText(ActivityMain.this, "ap was close", Toast.LENGTH_SHORT).show();
+            public void onDisConnected(NetworkInfo networkInfo) {
+
+            }
+        });
+        hzcWifiAPService.setOnScanListence(new HzcWifiAPService.OnScanListence() {
+            @Override
+            public void onScaning() {
+
             }
 
             @Override
-            public void onScanResult(List<ScanResult> devicelist) {//获得附近wifi设备
+            public void onFind(List<ScanResult> devicelist) {
                 Toast.makeText(ActivityMain.this, "done scan", Toast.LENGTH_SHORT).show();
                 datalist.clear();
                 datalist.addAll(devicelist);
@@ -69,39 +78,52 @@ public class ActivityMain extends AppCompatActivity {
             }
 
             @Override
-            public void onConnectioned(WifiInfo wifiInfo) {//链接wifi成功
-                if (connectionWifi != null && wifiInfo.getBSSID() == connectionWifi.BSSID) {
-                    hzcWifiAPService.unRegisterListance();
-                    Toast.makeText(ActivityMain.this, "connection success", Toast.LENGTH_SHORT).show();
-                }
+            public void onScanDone() {
+
+            }
+        });
+        hzcWifiAPService.setOnWifiApStatusListence(new HzcWifiAPService.OnWifiApStatusListence() {
+            @Override
+            public void onOpened() {
+                Toast.makeText(ActivityMain.this, "ap was create", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onClosed() {
+                Toast.makeText(ActivityMain.this, "ap was close", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void error() {
+
             }
         });
         //注册wifi状态改变事件
-        hzcWifiAPService.registerListance();
+        hzcWifiAPService.doRegisterListance();
 
         //关闭热点
         btnapclose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HzcWifiUtil.getInstance().closeWifiAp();
+                hzcWifiAPService.doCloseWifiAp();
             }
         });
         //开启wlan
         btnopen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (HzcWifiUtil.getInstance().isWifiEnabled()) {
-                    return;
+                if (!hzcWifiAPService.isWifiEnabled()) {
+                    hzcWifiAPService.setWifiEnable(true);
                 }
-                HzcWifiUtil.getInstance().setWifiEnable(true);
             }
         });
         //关闭wlan
         btnclose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (HzcWifiUtil.getInstance().isWifiEnabled())
-                    HzcWifiUtil.getInstance().setWifiEnable(false);
+                if (hzcWifiAPService.isWifiEnabled()) {
+                    hzcWifiAPService.setWifiEnable(false);
+                }
             }
         });
         //创建热点
@@ -116,14 +138,14 @@ public class ActivityMain extends AppCompatActivity {
                 if (TextUtils.isEmpty(pwd)) {
                     pwd = "12345678";
                 }
-                HzcWifiUtil.getInstance().createWifiAp(name, pwd);
+                hzcWifiAPService.doCreateWifiAp(name, pwd);
             }
         });
         //搜索热点
         btnscan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hzcWifiAPService.startScan();
+                hzcWifiAPService.doStartScan();
             }
         });
     }
@@ -155,7 +177,7 @@ public class ActivityMain extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     connectionWifi = datalist.get(Integer.parseInt(v.getTag().toString()));
-                    HzcWifiUtil.getInstance().doConnection(connectionWifi, "12345678");
+                    hzcWifiAPService.doConnection(connectionWifi, "12345678");
                 }
             });
         }
