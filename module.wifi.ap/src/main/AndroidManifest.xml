@@ -7,8 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.OVERRIDE_WIFI_CONFIG"
-        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.OVERRIDE_WIFI_CONFIG"  />
     <!-- just only work on android api <= 22 -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 

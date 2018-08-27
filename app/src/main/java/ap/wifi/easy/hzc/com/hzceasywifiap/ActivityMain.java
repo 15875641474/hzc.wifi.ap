@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -87,6 +88,7 @@ public class ActivityMain extends AppCompatActivity {
         hzcWifiAPService.setOnWifiApStatusListence(new HzcWifiAPService.OnWifiApStatusListence() {
             @Override
             public void onOpened() {
+                Log.e("ActivityMain","AP was create");
                 Toast.makeText(ActivityMain.this, "ap was create", Toast.LENGTH_SHORT).show();
             }
 

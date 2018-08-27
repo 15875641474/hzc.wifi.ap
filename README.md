@@ -25,7 +25,19 @@ HzcWifiAPService.is*
 
 ```
 
+
+
 * more .. see the sourse or desc
+#### PERMISSION
+
+```
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+<uses-permission android:name="android.permission.OVERRIDE_WIFI_CONFIG"  />
+```
 ### Use
 ```
 HzcWifiAPService apService = new HzcWifiAPService(activity) 
