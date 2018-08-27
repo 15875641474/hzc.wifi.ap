@@ -1,9 +1,11 @@
 package ap.wifi.easy.hzc.com.hzceasywifiap;
 
+import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -186,5 +188,10 @@ public class ActivityMain extends AppCompatActivity {
         public int getItemCount() {
             return datalist.size();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 }

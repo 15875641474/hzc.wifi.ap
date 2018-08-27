@@ -12,8 +12,13 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.util.Log;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -27,6 +32,9 @@ public class HzcWifiAPService {
     private final int WIFI_AP_STATE_FAILED = 14;
     private final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 
+    //TODO test
+    private ConnectivityManager cm;
+    private Handler handler;
 
     public enum WifiSecurityType {
         WIFICIPHER_NOPASS, WIFICIPHER_WPA, WIFICIPHER_INVALID, WIFICIPHER_WPA2
@@ -35,6 +43,8 @@ public class HzcWifiAPService {
     public HzcWifiAPService(Context context) {
         mContext = context;
         mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        handler = new Handler();
     }
 
 
@@ -182,6 +192,10 @@ public class HzcWifiAPService {
     public void doCloseWifiAp() {
         if (isWifiApEnabled()) {
             try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                    cm.getClass().getMethod("stopTethering",int.class).invoke(cm,0);
+                    return;
+                }
                 Method method = mWifiManager.getClass().getMethod("getWifiApConfiguration");
                 method.setAccessible(true);
                 WifiConfiguration config = (WifiConfiguration) method.invoke(mWifiManager);
@@ -189,7 +203,7 @@ public class HzcWifiAPService {
                 method2.invoke(mWifiManager, config, false);
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                Log.e(TAG,e.toString());
             }
         }
     }
@@ -273,6 +287,7 @@ public class HzcWifiAPService {
         return doCreateWifiAp(str, password, HzcWifiAPService.WifiSecurityType.WIFICIPHER_WPA2);
     }
 
+
     /**
      * 创建启动WiFi热点
      *
@@ -286,7 +301,7 @@ public class HzcWifiAPService {
         //配置热点信息。
         WifiConfiguration wcfg = new WifiConfiguration();
         wcfg.SSID = new String(ssid);
-        wcfg.networkId = 1;
+        wcfg.networkId = 5512311;
         wcfg.allowedAuthAlgorithms.clear();
         wcfg.allowedGroupCiphers.clear();
         wcfg.allowedKeyManagement.clear();
@@ -333,12 +348,12 @@ public class HzcWifiAPService {
             wcfg.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
         }
         try {
-            Method method = mWifiManager.getClass().getMethod("setWifiApConfiguration",
+            Method method = mWifiManager.getClass().getMethod("updateNetwork",
                     wcfg.getClass());
-            Boolean rt = (Boolean) method.invoke(mWifiManager, wcfg);
+            Object rt = method.invoke(mWifiManager, wcfg);
             Log.d(TAG, " rt = " + rt);
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, e.toString());
         }
         return setWifiApEnabled();
     }
@@ -381,8 +396,26 @@ public class HzcWifiAPService {
 
         //开启wifi热点
         try {
-            Method method1 = mWifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
-            method1.invoke(mWifiManager, null, true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+                Field field = cm.getClass().getDeclaredField("TETHERING_WIFI");
+                field.setAccessible(true);
+                int mTETHERING_WIFI = (int) field.get(cm);
+
+                Field iConnMgrField = cm.getClass().getDeclaredField("mService");
+                iConnMgrField.setAccessible(true);
+                Object iConnMgr = iConnMgrField.get(cm);
+                Class<?> iConnMgrClass = Class.forName(iConnMgr.getClass().getName());
+                Method startTethering = iConnMgrClass.getMethod("startTethering", int.class, ResultReceiver.class, boolean.class);
+                startTethering.invoke(iConnMgr, mTETHERING_WIFI, new ResultReceiver(handler) {
+                    @Override
+                    protected void onReceiveResult(int resultCode, Bundle resultData) {
+                        super.onReceiveResult(resultCode, resultData);
+                    }
+                }, true);
+            } else {
+                Method method1 = mWifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+                method1.invoke(mWifiManager, null, true);
+            }
             Thread.sleep(200);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
@@ -390,6 +423,7 @@ public class HzcWifiAPService {
         }
         return true;
     }
+
 
     /**
      * 获取热点状态
