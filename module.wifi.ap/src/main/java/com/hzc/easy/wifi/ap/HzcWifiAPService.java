@@ -128,7 +128,7 @@ public class HzcWifiAPService {
                         //已链接
                         if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
                             WifiInfo wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
-                            if (wifiInfo.getBSSID() != null && !wifiInfo.getBSSID().isEmpty()) {
+                            if (wifiInfo != null && wifiInfo.getBSSID() != null && !wifiInfo.getBSSID().isEmpty()) {
                                 onConnectionStatusListence.onConnectioned(wifiInfo, networkInfo);
                             }
                         }
